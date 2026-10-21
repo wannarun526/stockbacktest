@@ -1,0 +1,90 @@
+{
+  "strategy": "codex CLI（gpt-6-luna）逐日決策做多（1口）— stateless 模式、訊號 stance、訊號日收盤進出場",
+  "config": {
+    "startDate": "2001-04-09",
+    "endDate": null,
+    "limit": 5,
+    "codexBin": "codex",
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "timeoutMs": 180000,
+    "mode": "stateless",
+    "concurrency": 2,
+    "maxRetries": 5,
+    "dryRun": false,
+    "signal": "stance",
+    "threshold": 0.5,
+    "horizon": 5,
+    "exec": "close",
+    "tokenBudget": 120000,
+    "charsPerToken": 3,
+    "minBars": 60,
+    "maxBars": 0,
+    "pointValue": 200,
+    "costPerTrade": 240,
+    "slippage": 0
+  },
+  "codex": {
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "auth": "ChatGPT 訂閱（codex CLI）",
+    "apiCalls": 0,
+    "cacheHits": 5,
+    "totalTokens": 0,
+    "elapsedSeconds": 0,
+    "secondsPerCall": null,
+    "contextTruncated": false,
+    "firstTruncatedDate": null,
+    "minDailyBarsFed": 5,
+    "longDays": 2,
+    "flatDays": 3,
+    "longDayRatio": 40,
+    "avgUpProb": 0.508,
+    "note": "模型自報的 up_prob 無 logprobs 校準；訓練資料含同期台股歷史，有 look-ahead bias。"
+  },
+  "summary": {
+    "backtestPeriod": {
+      "start": "2001-04-09",
+      "end": "2001-04-13",
+      "tradingDays": 5
+    },
+    "totalTrades": 1,
+    "wins": 0,
+    "losses": 1,
+    "winRate": 0,
+    "totalPnl": -7040,
+    "avgPnl": -7040,
+    "avgWin": 0,
+    "avgLoss": -7040,
+    "maxWin": 0,
+    "maxLoss": -7040,
+    "profitFactor": 0,
+    "rewardRiskRatio": 0,
+    "maxDrawdown": -7040,
+    "exposureRatio": 40,
+    "buyHoldPnl": 8400
+  },
+  "yearlyPerformance": [
+    {
+      "year": "2001",
+      "pnl": -7040,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    }
+  ],
+  "trades": [
+    {
+      "id": 1,
+      "entryDate": "2001-04-11",
+      "exitDate": "2001-04-13",
+      "entryPrice": 5495,
+      "exitPrice": 5461,
+      "pnlPoints": -34,
+      "pnl": -7040,
+      "cumulativePnl": -7040,
+      "exitReason": "訊號平倉"
+    }
+  ]
+}

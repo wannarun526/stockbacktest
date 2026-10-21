@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>台指期貨 日線圖</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d1117; color: #c9d1d9; font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif; overflow: hidden; }
+#loading {
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  height: 100vh; gap: 16px; font-size: 16px; color: #888;
+}
+.spinner {
+  width: 36px; height: 36px; border: 3px solid #333;
+  border-top-color: #58a6ff; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#main { width: 100vw; height: 100vh; display: none; }
+#nw-ctrl {
+  position: fixed; top: 6px; right: 10px; z-index: 100;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(13,17,23,0.88); border: 1px solid #30363d;
+  border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #8b949e;
+}
+#nw-ctrl label { white-space: nowrap; }
+#nw-ctrl input {
+  width: 52px; background: #161b22; border: 1px solid #30363d;
+  border-radius: 4px; color: #c9d1d9; font-size: 12px;
+  padding: 2px 5px; text-align: center;
+}
+#nw-ctrl input:focus { outline: none; border-color: #58a6ff; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <span>載入台指期日線資料中…</span>
+</div>
+<div id="nw-ctrl">
+  <label>NW h</label>
+  <input id="inp-nwH"    type="number" value="5.2" min="1" max="200" step="0.1">
+  <label>mult</label>
+  <input id="inp-nwMult" type="number" value="3"   min="0.1" max="10" step="0.1">
+</div>
+<div id="main"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+/* ── 移動平均 ── */
+function calcMA(closes, period) {
+  return closes.map((_, i) => {
+    if (i < period - 1) return null;
+    let s = 0;
+    for (let k = i - period + 1; k <= i; k++) s += closes[k];
+    return +(s / period).toFixed(1);
+  });
+}
+
+/* ── RSI (Wilder 平滑) ── */
+function calcRSI(closes, period) {
+  const result = new Array(closes.length).fill(null);
+  if (closes.length <= period) return result;
+  let gainSum = 0, lossSum = 0;
+  for (let i = 1; i <= period; i++) {
+    const d = closes[i] - closes[i - 1];
+    if (d > 0) gainSum += d; else lossSum -= d;
+  }
+  let avgGain = gainSum / period;
+  let avgLoss = lossSum / period;
+  result[period] = avgLoss === 0 ? 100 : +(100 - 100 / (1 + avgGain / avgLoss)).toFixed(2);
+  for (let i = period + 1; i < closes.length; i++) {
+    const d = closes[i] - closes[i - 1];
+    avgGain = (avgGain * (period - 1) + Math.max(d, 0)) / period;
+    avgLoss = (avgLoss * (period - 1) + Math.max(-d, 0)) / period;
+    result[i] = avgLoss === 0 ? 100 : +(100 - 100 / (1 + avgGain / avgLoss)).toFixed(2);
+  }
+  return result;
+}
+
+/* ── ATR (Wilder 平滑) ── */
+function calcATR(data, period = 14) {
+  // data 升序，欄位使用 max/min/close
+  const tr = new Array(data.length).fill(null);
+  for (let i = 1; i < data.length; i++) {
+    const h = data[i].max, l = data[i].min, pc = data[i - 1].close;
+    tr[i] = Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc));
+  }
+  const result = new Array(data.length).fill(null);
+  const seed = period;
+  if (seed >= data.length) return result;
+  let sum = 0;
+  for (let i = 1; i <= period; i++) {
+    if (tr[i] === null) return result;
+    sum += tr[i];
+  }
+  result[seed] = +(sum / period).toFixed(1);
+  for (let i = seed + 1; i < data.length; i++) {
+    if (tr[i] === null) continue;
+    result[i] = +((result[i - 1] * (period - 1) + tr[i]) / period).toFixed(1);
+  }
+  return result;
+}
+
+/* ── 布林通道 (period=20, multiplier=2) ── */
+function calcBBands(closes, period = 20, mult = 2) {
+  const upper = [], lower = [];
+  for (let i = 0; i < closes.length; i++) {
+    if (i < period - 1) { upper.push(null); lower.push(null); continue; }
+    const slice = closes.slice(i - period + 1, i + 1);
+    const mean  = slice.reduce((a, b) => a + b, 0) / period;
+    const std   = Math.sqrt(slice.reduce((a, b) => a + (b - mean) ** 2, 0) / period);
+    upper.push(+(mean + mult * std).toFixed(1));
+    lower.push(+(mean - mult * std).toFixed(1));
+  }
+  return { upper, lower };
+}
+
+/* ── Nadaraya-Watson 核回歸 (Gaussian kernel, bandwidth=h) ──
+   Causal（非重繪）版本：j 只走訪 0 ~ i，不使用未來資料
+   nw[i] = Σ_{j=0}^{i} K((i-j)/h)·close[j] / Σ_{j=0}^{i} K((i-j)/h)
+   K(u) = exp(-0.5·u²)                                                 */
+function calcNWKernel(closes, h = 8.0) {
+  const n = closes.length;
+  const result = new Array(n);
+  for (let i = 0; i < n; i++) {
+    let sumW = 0, sumWY = 0;
+    for (let j = 0; j <= i; j++) {       // ← 只看 0 ~ i，不偷看未來
+      const d = (i - j) / h;
+      const w = Math.exp(-0.5 * d * d);
+      sumW  += w;
+      sumWY += w * closes[j];
+    }
+    result[i] = +(sumWY / sumW).toFixed(1);
+  }
+  return result;
+}
+
+/* ── ADX (Wilder 平滑, period=14) ── */
+function calcADX(data, period = 14) {
+  const n = data.length;
+  const result = new Array(n).fill(null);
+  if (n < 2 * period + 1) return result;
+
+  const tr = [], pdm = [], mdm = [];
+
+  for (let i = 1; i < n; i++) {
+    const h = data[i].max,  l = data[i].min;
+    const ph = data[i-1].max, pl = data[i-1].min, pc = data[i-1].close;
+    tr.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+    const up = h - ph, dn = pl - l;
+    pdm.push(up > dn && up > 0 ? up : 0);
+    mdm.push(dn > up && dn > 0 ? dn : 0);
+  }
+
+  // 初始 Wilder 平滑 (前 period 項之和)
+  let sTR  = 0, sPDM = 0, sMDM = 0;
+  for (let i = 0; i < period; i++) { sTR += tr[i]; sPDM += pdm[i]; sMDM += mdm[i]; }
+
+  const dx = [];
+  for (let i = period; i < tr.length; i++) {
+    sTR  = sTR  - sTR  / period + tr[i];
+    sPDM = sPDM - sPDM / period + pdm[i];
+    sMDM = sMDM - sMDM / period + mdm[i];
+    const pdi = 100 * sPDM / sTR;
+    const mdi = 100 * sMDM / sTR;
+    const sum = pdi + mdi;
+    dx.push(sum === 0 ? 0 : 100 * Math.abs(pdi - mdi) / sum);
+  }
+
+  if (dx.length < period) return result;
+
+  // 第一個 ADX = 前 period 個 DX 的平均
+  let adxVal = 0;
+  for (let i = 0; i < period; i++) adxVal += dx[i];
+  adxVal /= period;
+
+  // dx[0] 對應 data[period+1]，dx[period-1] 對應 data[2*period]
+  result[2 * period] = +adxVal.toFixed(2);
+
+  for (let i = period; i < dx.length; i++) {
+    adxVal = (adxVal * (period - 1) + dx[i]) / period;
+    result[2 * period + (i - period + 1)] = +adxVal.toFixed(2);
+  }
+
+  return result;
+}
+
+/* ── 數字格式化 ── */
+function fmt(n) {
+  if (n === null || n === undefined) return '-';
+  return n.toLocaleString();
+}
+
+/* ── 主程式 ── */
+async function main() {
+  // day_data/stocks.ftx.json 資料格式（由新到舊排列）：
+  // {
+  //   date:          string  // ex: "2004-04-09"
+  //   contract_date: string  // ex: "200404"
+  //   open:          number  // 開盤價
+  //   max:           number  // 最高價
+  //   min:           number  // 最低價
+  //   close:         number  // 收盤價
+  //   volume:        number  // 成交量
+  // }[]
+  const [priceRes, reportRes] = await Promise.all([
+    fetch('./day_data/stocks.ftx.json'),
+    fetch('./strategy6-16_report.json')
+  ]);
+  const raw    = await priceRes.json();
+  const report = await reportRes.json();
+  const data   = raw.slice().reverse(); // 由舊到新
+  const trades = report.trades || [];
+
+  const dates   = data.map(d => d.date);
+  const closes  = data.map(d => d.close);
+  const volumes = data.map(d => d.volume);
+
+  // ECharts K線格式: [open, close, low, high]
+  const candles = data.map(d => [d.open, d.close, d.min, d.max]);
+  // 成交量 (含漲跌色)
+  const volData = data.map((d, i) => ({
+    value: d.volume,
+    itemStyle: { color: d.close >= d.open ? '#ef5350' : '#26a69a' }
+  }));
+
+  const ma5   = calcMA(closes, 5);
+  const ma11  = calcMA(closes, 11);
+  const ma20  = calcMA(closes, 20);
+  const ma60  = calcMA(closes, 60);
+  const ma180 = calcMA(closes, 180);
+  const ma200 = calcMA(closes, 200);
+  const ma240 = calcMA(closes, 240);
+  const adx  = calcADX(data, 14);
+  const bb   = calcBBands(closes, 20, 2);
+  const atr  = calcATR(data, 14);
+  const rsi7  = calcRSI(closes, 7);
+  const rsi14 = calcRSI(closes, 14);
+  // 每根 K 棒收盤 - 1.5 × ATR(14)，作為動態停損參考線
+  const atrStop = closes.map((c, i) =>
+    atr[i] !== null ? +(c - 1.5 * atr[i]).toFixed(1) : null
+  );
+
+  // NW Kernel Regression Envelope（初始值，可由畫面控制）
+  let nwH    = parseFloat(document.getElementById('inp-nwH').value)    || 5.2;
+  let nwMult = parseFloat(document.getElementById('inp-nwMult').value) || 3;
+
+  function buildNWSeries(h, mult) {
+    const mean  = calcNWKernel(closes, h);
+    const upper = mean.map((v, i) => atr[i] !== null ? +(v + mult * atr[i]).toFixed(1) : null);
+    const lower = mean.map((v, i) => atr[i] !== null ? +(v - mult * atr[i]).toFixed(1) : null);
+    return { mean, upper, lower };
+  }
+
+  let nw = buildNWSeries(nwH, nwMult);
+  const nwMean  = nw.mean;
+  const nwUpper = nw.upper;
+  const nwLower = nw.lower;
+
+  // 成交量 MA
+  const volMA5  = calcMA(volumes, 5);
+  const volMA10 = calcMA(volumes, 10);
+  const volMA20 = calcMA(volumes, 20);
+  // Volume Ratio = 當日量 ÷ 過去 20 日平均量
+  const volRatio = volumes.map((v, i) =>
+    volMA20[i] !== null && volMA20[i] !== 0
+      ? +((v / volMA20[i]).toFixed(2))
+      : null
+  );
+
+  // 交易標記
+  const dateIndex = Object.fromEntries(dates.map((d, i) => [d, i]));
+
+  const entryScatter = trades
+    .filter(t => dateIndex[t.entryDate] !== undefined)
+    .map(t => ({
+      value: [t.entryDate, t.entryPrice],
+      tradeId: t.id,
+      exitDate: t.exitDate,
+      exitPrice: t.exitPrice,
+      pnlPoints: t.pnlPoints,
+      pnl: t.pnl,
+      cumulativePnl: t.cumulativePnl,
+      exitReason: t.exitReason,
+      itemStyle: { color: t.pnlPoints >= 0 ? '#ef5350' : '#26a69a' }
+    }));
+
+  const exitScatter = trades
+    .filter(t => dateIndex[t.exitDate] !== undefined)
+    .map(t => ({
+      value: [t.exitDate, t.exitPrice],
+      tradeId: t.id,
+      entryDate: t.entryDate,
+      entryPrice: t.entryPrice,
+      pnlPoints: t.pnlPoints,
+      pnl: t.pnl,
+      cumulativePnl: t.cumulativePnl,
+      exitReason: t.exitReason,
+      itemStyle: { color: t.pnlPoints >= 0 ? '#ef5350' : '#26a69a' }
+    }));
+
+  // 累積損益對齊至 exitDate
+  const cumPnlData = new Array(dates.length).fill(null);
+  trades.forEach(t => {
+    const idx = dateIndex[t.exitDate];
+    if (idx !== undefined) cumPnlData[idx] = t.cumulativePnl;
+  });
+
+  // BBW = (上軌 − 下軌) ÷ 中軌 (中軌 = MA20)
+  const bbw  = bb.upper.map((u, i) => {
+    const l = bb.lower[i], m = ma20[i];
+    return (u !== null && l !== null && m !== null && m !== 0)
+      ? +((u - l) / m * 100).toFixed(3)
+      : null;
+  });
+
+  document.getElementById('loading').style.display = 'none';
+  const mainEl = document.getElementById('main');
+  mainEl.style.display = 'block';
+
+  const chart = echarts.init(mainEl, null, { renderer: 'canvas' });
+
+  // 預設顯示最近 150 根
+  const showBars  = 150;
+  const startPct  = Math.max(0, ((data.length - showBars) / data.length) * 100);
+
+  const option = {
+    backgroundColor: '#0d1117',
+    animation: false,
+
+    legend: {
+      top: 6, left: 'center',
+      textStyle: { color: '#8b949e', fontSize: 12 },
+      itemWidth: 20, itemHeight: 3,
+      data: [
+        { name: 'K線',     icon: 'rect' },
+        { name: 'MA5',     icon: 'line' },
+        { name: 'MA11',    icon: 'line' },
+        { name: 'MA20',    icon: 'line' },
+        { name: 'MA60',    icon: 'line' },
+        { name: 'MA180',   icon: 'line' },
+        { name: 'MA200',   icon: 'line' },
+        { name: 'MA240',   icon: 'line' },
+        { name: 'BB上軌',     icon: 'line' },
+        { name: 'BB下軌',     icon: 'line' },
+        { name: 'NW 中軸',    icon: 'line' },
+        { name: 'NW 上軌',    icon: 'line' },
+        { name: 'NW 下軌',    icon: 'line' },
+        { name: 'Vol MA5',  icon: 'line' },
+        { name: 'Vol MA10', icon: 'line' },
+        { name: 'Vol MA20', icon: 'line' },
+        { name: 'VR',       icon: 'line' },
+        { name: 'ADX(14)',  icon: 'line' },
+        { name: 'BBW(%)',   icon: 'line' },
+        { name: 'ATR(14)',  icon: 'line' },
+        { name: 'ATR Stop', icon: 'line' },
+        { name: 'RSI(7)',   icon: 'line' },
+        { name: 'RSI(14)',  icon: 'line' },
+        { name: '進場',     icon: 'circle' },
+        { name: '出場',     icon: 'circle' },
+        { name: '累積損益', icon: 'line' }
+      ]
+    },
+
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'cross', crossStyle: { color: '#444' } },
+      backgroundColor: 'rgba(13,17,23,0.95)',
+      borderColor: '#30363d',
+      textStyle: { color: '#c9d1d9', fontSize: 12 },
+      formatter(params) {
+        if (!params || !params.length) return '';
+        const date = params[0].axisValue;
+        let html = `<div style="margin-bottom:4px;font-weight:bold;color:#58a6ff">${date}</div>`;
+        params.forEach(p => {
+          if (p.seriesName === 'K線') {
+            // p.value = [xAxisIndex, open, close, low, high]（ECharts 自動在首位插入 x 軸索引）
+            const [, o, c, l, h] = p.value;
+            const clr = c >= o ? '#ef5350' : '#26a69a';
+            html += `<span style="color:${clr}">▮</span> 開 <b>${fmt(o)}</b>　高 <b>${fmt(h)}</b>　低 <b>${fmt(l)}</b>　收 <b>${fmt(c)}</b><br/>`;
+          } else if (p.seriesName === 'BB上軌' || p.seriesName === 'BB下軌') {
+            if (p.value !== null && p.value !== undefined)
+              html += `<span style="color:${p.color}">─ ─</span> ${p.seriesName}: <b>${fmt(p.value)}</b><br/>`;
+          } else if (p.seriesName === 'NW 中軸' || p.seriesName === 'NW 上軌' || p.seriesName === 'NW 下軌') {
+            if (p.value !== null && p.value !== undefined)
+              html += `<span style="color:${p.color}">─</span> ${p.seriesName}: <b>${fmt(p.value)}</b><br/>`;
+          } else if (p.seriesName === 'BBW(%)') {
+            if (p.value !== null && p.value !== undefined)
+              html += `<span style="color:${p.color}">─</span> BBW: <b>${p.value}%</b><br/>`;
+          } else if (p.seriesName === 'VR') {
+            if (p.value !== null && p.value !== undefined)
+              html += `<span style="color:${p.color}">─</span> VR: <b>${p.value}</b><br/>`;
+          } else if (p.seriesName === '進場') {
+            const d = p.data;
+            if (d) {
+              const clr = d.pnlPoints >= 0 ? '#ef5350' : '#26a69a';
+              html += `<span style="color:${clr}">▲</span> 進場 #${d.tradeId}: <b>${fmt(d.value[1])}</b> → 出場 ${d.exitDate} <b>${fmt(d.exitPrice)}</b>`;
+              html += ` | <b style="color:${clr}">${d.pnlPoints >= 0 ? '+' : ''}${d.pnlPoints}pt</b> ${d.exitReason}<br/>`;
+            }
+          } else if (p.seriesName === '出場') {
+            const d = p.data;
+            if (d) {
+              const clr = d.pnlPoints >= 0 ? '#ef5350' : '#26a69a';
+              html += `<span style="color:${clr}">▼</span> 出場 #${d.tradeId}: <b>${fmt(d.value[1])}</b> | 累積: <b style="color:${clr}">${d.cumulativePnl >= 0 ? '+' : ''}${fmt(d.cumulativePnl)}</b><br/>`;
+            }
+          } else if (p.seriesName === '累積損益') {
+            if (p.value !== null && p.value !== undefined) {
+              const clr = p.value >= 0 ? '#ef5350' : '#26a69a';
+              html += `<span style="color:${clr}">─</span> 累積損益: <b style="color:${clr}">${p.value >= 0 ? '+' : ''}${fmt(p.value)}</b><br/>`;
+            }
+          } else if (p.seriesName === '成交量') {
+            html += `<span style="color:${p.color}">▮</span> 成交量: <b>${fmt(p.value)}</b><br/>`;
+          } else if (p.value !== null && p.value !== undefined) {
+            html += `<span style="color:${p.color}">─</span> ${p.seriesName}: <b>${p.value}</b><br/>`;
+          }
+        });
+        return html;
+      }
+    },
+
+    axisPointer: { link: [{ xAxisIndex: 'all' }] },
+
+    dataZoom: [
+      {
+        type: 'inside',
+        xAxisIndex: [0, 1, 2, 3, 4, 5, 6],
+        start: startPct, end: 100,
+        minSpan: 1
+      },
+      {
+        type: 'slider',
+        xAxisIndex: [0, 1, 2, 3, 4, 5, 6],
+        start: startPct, end: 100,
+        height: 22, bottom: 4,
+        handleStyle: { color: '#58a6ff' },
+        fillerColor: 'rgba(88,166,255,0.1)',
+        borderColor: '#30363d',
+        textStyle: { color: '#666' }
+      }
+    ],
+
+    grid: [
+      { left: 65, right: 80, top: 36,    height: '30%' },  // K線 + MA
+      { left: 65, right: 80, top: '36%', height: '7%'  },  // 成交量
+      { left: 65, right: 80, top: '45%', height: '6%'  },  // ADX
+      { left: 65, right: 80, top: '53%', height: '6%'  },  // BBW
+      { left: 65, right: 80, top: '61%', height: '6%'  },  // ATR
+      { left: 65, right: 80, top: '69%', height: '8%'  },  // RSI
+      { left: 65, right: 80, top: '79%', height: '10%' }   // 累積損益
+    ],
+
+    xAxis: [
+      {
+        type: 'category', data: dates, gridIndex: 0,
+        axisLine: { lineStyle: { color: '#30363d' } },
+        axisLabel: { show: false },
+        splitLine: { show: false },
+        axisTick: { show: false }
+      },
+      {
+        type: 'category', data: dates, gridIndex: 1,
+        axisLine: { lineStyle: { color: '#30363d' } },
+        axisLabel: { show: false },
+        splitLine: { show: false },
+        axisTick: { show: false }
+      },
+      {
+        type: 'category', data: dates, gridIndex: 2,
+        axisLine: { lineStyle: { color: '#30363d' } },
+        axisLabel: { show: false },
+        splitLine: { show: false },
+        axisTick: { show: false }
+      },
+      {
+        type: 'category', data: dates, gridIndex: 3,
+        axisLine: { lineStyle: { color: '#30363d' } },
+        axisLabel: { show: false },
+        splitLine: { show: false },
+        axisTick: { show: false }
+      },
+      {
+        type: 'category', data: dates, gridIndex: 4,
+        axisLine: { lineStyle: { color: '#30363d' } },
+        axisLabel: { show: false },
+        splitLine: { show: false },
+        axisTick: { show: false }
+      },
+      {
+        type: 'category', data: dates, gridIndex: 5,
+        axisLine: { lineStyle: { color: '#30363d' } },
+        axisLabel: { show: false },
+        splitLine: { show: false },
+        axisTick: { show: false }
+      },
+      {
+        type: 'category', data: dates, gridIndex: 6,
+        axisLine: { lineStyle: { color: '#30363d' } },
+        axisLabel: { color: '#6e7681', fontSize: 10, rotate: 20 },
+        splitLine: { show: false },
+        axisTick: { show: false }
+      }
+    ],
+
+    yAxis: [
+      {
+        gridIndex: 0, scale: true,
+        splitLine: { lineStyle: { color: '#21262d', type: 'dashed' } },
+        axisLabel: { color: '#8b949e', fontSize: 11, formatter: v => v.toLocaleString() },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      {
+        gridIndex: 1, scale: false,
+        splitLine: { show: false },
+        axisLabel: {
+          color: '#8b949e', fontSize: 10,
+          formatter: v => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v
+        },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      // yAxis[2]: VR 次軸，靠右，疊在成交量 grid
+      {
+        gridIndex: 1, scale: true, position: 'right',
+        splitLine: { show: false },
+        axisLabel: { color: '#a8dadc', fontSize: 9 },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      // yAxis[3]: ADX
+      {
+        gridIndex: 2, min: 0, max: 100,
+        splitLine: { show: false },
+        axisLabel: { color: '#8b949e', fontSize: 10 },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      // yAxis[4]: BBW
+      {
+        gridIndex: 3, scale: true,
+        splitLine: { show: false },
+        axisLabel: { color: '#8b949e', fontSize: 10, formatter: v => v + '%' },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      // yAxis[5]: ATR
+      {
+        gridIndex: 4, scale: true,
+        splitLine: { show: false },
+        axisLabel: { color: '#8b949e', fontSize: 10 },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      // yAxis[6]: RSI
+      {
+        gridIndex: 5, min: 0, max: 100,
+        splitLine: { show: false },
+        axisLabel: { color: '#8b949e', fontSize: 10 },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      // yAxis[7]: 累積損益
+      {
+        gridIndex: 6, scale: true,
+        splitLine: { lineStyle: { color: '#21262d', type: 'dashed' } },
+        axisLabel: {
+          color: '#8b949e', fontSize: 10,
+          formatter: v => (v >= 0 ? '+' : '') + (v / 10000).toFixed(0) + 'w'
+        },
+        axisLine: { show: false }, axisTick: { show: false }
+      }
+    ],
+
+    series: [
+      /* ─── K線 ─── */
+      {
+        name: 'K線',
+        type: 'candlestick',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: candles,
+        itemStyle: {
+          color:        '#ef5350',  // 紅漲
+          color0:       '#26a69a',  // 綠跌
+          borderColor:  '#ef5350',
+          borderColor0: '#26a69a'
+        },
+        barMaxWidth: 12
+      },
+
+      /* ─── MA ─── */
+      {
+        name: 'MA5', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: ma5,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#f0b429', width: 1 },
+        itemStyle: { color: '#f0b429' }
+      },
+      {
+        name: 'MA11', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: ma11,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#e91e63', width: 1 },
+        itemStyle: { color: '#e91e63' }
+      },
+      {
+        name: 'MA20', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: ma20,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#29b6f6', width: 1 },
+        itemStyle: { color: '#29b6f6' }
+      },
+      {
+        name: 'MA60', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: ma60,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#ce93d8', width: 1.5 },
+        itemStyle: { color: '#ce93d8' }
+      },
+      {
+        name: 'MA180', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: ma180,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#ff9800', width: 1.5 },
+        itemStyle: { color: '#ff9800' }
+      },
+      {
+        name: 'MA200', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: ma200,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#66bb6a', width: 1.5 },
+        itemStyle: { color: '#66bb6a' }
+      },
+      {
+        name: 'MA240', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: ma240,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#ef5350', width: 1.5 },
+        itemStyle: { color: '#ef5350' }
+      },
+
+      /* ─── BBand 下軌（作為填色基底，不加入 legend） ─── */
+      {
+        name: '_bb_base',
+        type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: bb.lower,
+        stack: 'bbband',
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { opacity: 0 },
+        areaStyle: { color: 'transparent' },
+        tooltip: { show: false },
+        legendHoverLink: false,
+        silent: true
+      },
+      /* ─── BBand 填色區（上軌 - 下軌 差值，不加入 legend） ─── */
+      {
+        name: '_bb_fill',
+        type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: bb.upper.map((u, i) => (u !== null && bb.lower[i] !== null) ? +(u - bb.lower[i]).toFixed(1) : null),
+        stack: 'bbband',
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { opacity: 0 },
+        areaStyle: { color: 'rgba(64,170,220,0.07)' },
+        tooltip: { show: false },
+        legendHoverLink: false,
+        silent: true
+      },
+      /* ─── BB 上軌 ─── */
+      {
+        name: 'BB上軌', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: bb.upper,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: 'rgba(64,170,220,0.85)', width: 1, type: 'dashed' },
+        itemStyle: { color: 'rgba(64,170,220,0.85)' }
+      },
+      /* ─── BB 下軌 ─── */
+      {
+        name: 'BB下軌', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: bb.lower,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: 'rgba(64,170,220,0.85)', width: 1, type: 'dashed' },
+        itemStyle: { color: 'rgba(64,170,220,0.85)' }
+      },
+
+      /* ─── NW Envelope 填色基底（隱藏）─── */
+      {
+        name: '_nw_base',
+        type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: nwLower,
+        stack: 'nwenv',
+        symbol: 'none', connectNulls: false,
+        lineStyle: { opacity: 0 },
+        areaStyle: { color: 'transparent' },
+        tooltip: { show: false },
+        legendHoverLink: false,
+        silent: true
+      },
+      /* ─── NW Envelope 填色區（差值）─── */
+      {
+        name: '_nw_fill',
+        type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: nwUpper.map((u, i) =>
+          u !== null && nwLower[i] !== null ? +(u - nwLower[i]).toFixed(1) : null
+        ),
+        stack: 'nwenv',
+        symbol: 'none', connectNulls: false,
+        lineStyle: { opacity: 0 },
+        areaStyle: { color: 'rgba(178,255,89,0.07)' },
+        tooltip: { show: false },
+        legendHoverLink: false,
+        silent: true
+      },
+      /* ─── NW 中軸 ─── */
+      {
+        name: 'NW 中軸', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: nwMean,
+        symbol: 'none', connectNulls: false,
+        lineStyle: { color: 'rgba(178,255,89,0.95)', width: 1.5 },
+        itemStyle: { color: 'rgba(178,255,89,0.95)' }
+      },
+      /* ─── NW 上軌 ─── */
+      {
+        name: 'NW 上軌', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: nwUpper,
+        symbol: 'none', connectNulls: false,
+        lineStyle: { color: 'rgba(178,255,89,0.7)', width: 1, type: 'dashed' },
+        itemStyle: { color: 'rgba(178,255,89,0.7)' }
+      },
+      /* ─── NW 下軌 ─── */
+      {
+        name: 'NW 下軌', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: nwLower,
+        symbol: 'none', connectNulls: false,
+        lineStyle: { color: 'rgba(178,255,89,0.7)', width: 1, type: 'dashed' },
+        itemStyle: { color: 'rgba(178,255,89,0.7)' }
+      },
+
+      /* ─── ATR Stop (close - 1.5×ATR14) ─── */
+      {
+        name: 'ATR Stop', type: 'line',
+        xAxisIndex: 0, yAxisIndex: 0, data: atrStop,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: 'rgba(255,100,100,0.7)', width: 1, type: 'dotted' },
+        itemStyle: { color: 'rgba(255,100,100,0.7)' }
+      },
+
+      /* ─── 成交量 ─── */
+      {
+        name: '成交量',
+        type: 'bar',
+        xAxisIndex: 1, yAxisIndex: 1,
+        data: volData,
+        barMaxWidth: 12,
+        emphasis: { disabled: true }
+      },
+
+      /* ─── 成交量 MA ─── */
+      {
+        name: 'Vol MA5', type: 'line',
+        xAxisIndex: 1, yAxisIndex: 1, data: volMA5,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#ff9800', width: 1 },
+        itemStyle: { color: '#ff9800' }
+      },
+      {
+        name: 'Vol MA10', type: 'line',
+        xAxisIndex: 1, yAxisIndex: 1, data: volMA10,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#ab47bc', width: 1 },
+        itemStyle: { color: '#ab47bc' }
+      },
+      {
+        name: 'Vol MA20', type: 'line',
+        xAxisIndex: 1, yAxisIndex: 1, data: volMA20,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#66bb6a', width: 1 },
+        itemStyle: { color: '#66bb6a' }
+      },
+      /* ─── Volume Ratio ─── */
+      {
+        name: 'VR', type: 'line',
+        xAxisIndex: 1, yAxisIndex: 2, data: volRatio,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#a8dadc', width: 1, type: 'dotted' },
+        itemStyle: { color: '#a8dadc' },
+        markLine: {
+          silent: true, symbol: 'none',
+          lineStyle: { color: '#a8dadc44', type: 'dashed', width: 1 },
+          label: { formatter: '{c}', color: '#a8dadc88', fontSize: 9, position: 'end' },
+          data: [{ yAxis: 1 }]
+        }
+      },
+
+      /* ─── ADX ─── */
+      {
+        name: 'ADX(14)',
+        type: 'line',
+        xAxisIndex: 2, yAxisIndex: 3,
+        data: adx,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#ffd700', width: 1.5 },
+        itemStyle: { color: '#ffd700' },
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          lineStyle: { color: '#555', type: 'dashed', width: 1 },
+          label: { formatter: '{c}', color: '#666', fontSize: 10, position: 'end' },
+          data: [{ yAxis: 20 }]
+        }
+      },
+
+      /* ─── ATR ─── */
+      {
+        name: 'ATR(14)',
+        type: 'line',
+        xAxisIndex: 4, yAxisIndex: 5,
+        data: atr,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#ffb74d', width: 1.5 },
+        itemStyle: { color: '#ffb74d' },
+        areaStyle: { color: 'rgba(255,183,77,0.07)' }
+      },
+
+      /* ─── BBW ─── */
+      {
+        name: 'BBW(%)',
+        type: 'line',
+        xAxisIndex: 3, yAxisIndex: 4,
+        data: bbw,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#4dd0e1', width: 1.5 },
+        itemStyle: { color: '#4dd0e1' },
+        areaStyle: { color: 'rgba(77,208,225,0.08)' }
+      },
+
+      /* ─── RSI ─── */
+      {
+        name: 'RSI(7)', type: 'line',
+        xAxisIndex: 5, yAxisIndex: 6, data: rsi7,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#f06292', width: 1.2 },
+        itemStyle: { color: '#f06292' },
+        markLine: {
+          silent: true, symbol: 'none',
+          lineStyle: { color: '#555', type: 'dashed', width: 1 },
+          data: [{ yAxis: 70 }, { yAxis: 30 }]
+        }
+      },
+      {
+        name: 'RSI(14)', type: 'line',
+        xAxisIndex: 5, yAxisIndex: 6, data: rsi14,
+        symbol: 'none', smooth: false, connectNulls: false,
+        lineStyle: { color: '#ba68c8', width: 1.2 },
+        itemStyle: { color: '#ba68c8' },
+        markLine: {
+          silent: true, symbol: 'none',
+          lineStyle: { color: '#555', type: 'dashed', width: 1 },
+          data: [{ yAxis: 70 }, { yAxis: 30 }]
+        }
+      },
+
+      /* ─── 進場標記 ▲ ─── */
+      {
+        name: '進場',
+        type: 'scatter',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: entryScatter,
+        symbol: 'triangle',
+        symbolSize: 10,
+        label: { show: false }
+      },
+      /* ─── 出場標記 ▼ ─── */
+      {
+        name: '出場',
+        type: 'scatter',
+        xAxisIndex: 0, yAxisIndex: 0,
+        data: exitScatter,
+        symbol: 'triangle',
+        symbolRotate: 180,
+        symbolSize: 10,
+        label: { show: false }
+      },
+
+      /* ─── 累積損益 ─── */
+      {
+        name: '累積損益',
+        type: 'line',
+        xAxisIndex: 6, yAxisIndex: 7,
+        data: cumPnlData,
+        symbol: 'none', smooth: false, connectNulls: true,
+        lineStyle: { color: '#80cbc4', width: 1.5 },
+        itemStyle: { color: '#80cbc4' },
+        areaStyle: {
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(128,203,196,0.25)' },
+              { offset: 1, color: 'rgba(128,203,196,0.02)' }
+            ]
+          }
+        },
+        markLine: {
+          silent: true, symbol: 'none',
+          lineStyle: { color: '#555', type: 'dashed', width: 1 },
+          data: [{ yAxis: 0 }]
+        }
+      }
+    ]
+  };
+
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+
+  // ── NW 參數即時更新 ──
+  function applyNW() {
+    const h    = parseFloat(document.getElementById('inp-nwH').value);
+    const mult = parseFloat(document.getElementById('inp-nwMult').value);
+    if (isNaN(h) || isNaN(mult) || h <= 0 || mult <= 0) return;
+    const nwNew = buildNWSeries(h, mult);
+    chart.setOption({
+      series: [
+        { name: '_nw_base', data: nwNew.lower },
+        {
+          name: '_nw_fill',
+          data: nwNew.upper.map((u, i) =>
+            u !== null && nwNew.lower[i] !== null ? +(u - nwNew.lower[i]).toFixed(1) : null
+          )
+        },
+        { name: 'NW 中軸', data: nwNew.mean },
+        { name: 'NW 上軌', data: nwNew.upper },
+        { name: 'NW 下軌', data: nwNew.lower },
+      ]
+    });
+  }
+  document.getElementById('inp-nwH').addEventListener('input', applyNW);
+  document.getElementById('inp-nwMult').addEventListener('input', applyNW);
+}
+
+main().catch(err => {
+  document.getElementById('loading').innerHTML =
+    `<div style="color:#f85149">⚠ 載入失敗：${err.message}</div>
+     <div style="color:#666;font-size:13px;margin-top:8px">請確認透過本機伺服器開啟此頁面</div>`;
+});
+</script>
+</body>
+</html>

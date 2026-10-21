@@ -1,0 +1,155 @@
+{
+  "id": "6-5",
+  "strategy": "純 ATR 停損 — 收盤 > BB(20,2) 上軌尾盤做多（1口）｜出場：盤中 ≤ 進場價 − atrMult×ATR(14) → 停損（不設停利）",
+  "exitRule": "盤中 ≤ 進場價 − atrMult×ATR(14) → 停損（不設停利）",
+  "config": {
+    "startDate": null,
+    "endDate": null,
+    "bbPeriod": 20,
+    "bbMult": 2,
+    "entryMode": "level",
+    "pointValue": 200,
+    "costPerTrade": 240,
+    "slippage": 0,
+    "atrMult": 2
+  },
+  "summary": {
+    "backtestPeriod": {
+      "start": "2001-04-09",
+      "end": "2026-08-21",
+      "tradingDays": 6249
+    },
+    "totalTrades": 4,
+    "wins": 0,
+    "losses": 4,
+    "winRate": 0,
+    "totalPnl": -221107,
+    "avgPnl": -55277,
+    "avgWin": 0,
+    "avgLoss": -55277,
+    "maxWin": 0,
+    "maxLoss": -84310,
+    "profitFactor": 0,
+    "rewardRiskRatio": 0,
+    "maxDrawdown": -221107,
+    "pnlToMaxDD": -1,
+    "pctSum": -24.41,
+    "avgPctPerTrade": -6.103,
+    "pctCompound": -22.3,
+    "avgHoldDays": 417.3,
+    "exposureRatio": 26.71,
+    "buyHoldPnl": 7943800
+  },
+  "openPosition": {
+    "entryDate": "2009-03-11",
+    "entryPrice": 4758,
+    "lastDate": "2026-08-21",
+    "lastClose": 45138,
+    "holdDays": 4285,
+    "unrealizedPoints": 40380,
+    "unrealizedPnl": 8075760
+  },
+  "exitReasonStats": [
+    {
+      "reason": "ATR停損",
+      "trades": 4,
+      "wins": 0,
+      "losses": 4,
+      "winRate": 0,
+      "pnl": -221107,
+      "avgPnl": -55277
+    }
+  ],
+  "yearlyPerformance": [
+    {
+      "year": "2001",
+      "pnl": -42558,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2002",
+      "pnl": -58186,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2003",
+      "pnl": -36054,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2008",
+      "pnl": -84310,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    }
+  ],
+  "trades": [
+    {
+      "id": 1,
+      "entryDate": "2001-11-14",
+      "exitDate": "2002-10-04",
+      "entryPrice": 4230,
+      "exitPrice": 4018,
+      "holdDays": 220,
+      "mfePoints": 2220,
+      "maePoints": -224,
+      "pnlPoints": -211.59,
+      "pnl": -42558,
+      "cumulativePnl": -42558,
+      "exitReason": "ATR停損"
+    },
+    {
+      "id": 2,
+      "entryDate": "2002-10-23",
+      "exitDate": "2003-03-11",
+      "entryPrice": 4592,
+      "exitPrice": 4302,
+      "holdDays": 91,
+      "mfePoints": 518,
+      "maePoints": -361,
+      "pnlPoints": -289.73,
+      "pnl": -58186,
+      "cumulativePnl": -100744,
+      "exitReason": "ATR停損"
+    },
+    {
+      "id": 3,
+      "entryDate": "2003-05-26",
+      "exitDate": "2008-10-27",
+      "entryPrice": 4444,
+      "exitPrice": 4265,
+      "holdDays": 1348,
+      "mfePoints": 5420,
+      "maePoints": -410,
+      "pnlPoints": -179.07,
+      "pnl": -36054,
+      "cumulativePnl": -136797,
+      "exitReason": "ATR停損"
+    },
+    {
+      "id": 4,
+      "entryDate": "2008-12-10",
+      "exitDate": "2008-12-24",
+      "entryPrice": 4689,
+      "exitPrice": 4269,
+      "holdDays": 10,
+      "mfePoints": 66,
+      "maePoints": -448,
+      "pnlPoints": -420.35,
+      "pnl": -84310,
+      "cumulativePnl": -221107,
+      "exitReason": "ATR停損"
+    }
+  ]
+}

@@ -1,0 +1,1129 @@
+{
+  "strategy": "SMA5/SMA11 黃金交叉做多 + ADX14>=20 過濾 + ATR14×1.5 停損",
+  "config": {
+    "dataFile": "/Users/yunshanghong/Desktop/everything/WebDev/stock/strategy/day_data/stocks.ftx.json",
+    "fastPeriod": 5,
+    "slowPeriod": 11,
+    "atrPeriod": 14,
+    "atrMultiplier": 1.5,
+    "adxPeriod": 14,
+    "adxThreshold": 20,
+    "pointValue": 200,
+    "costPerTrade": 240,
+    "slippage": 1
+  },
+  "summary": {
+    "backtestPeriod": {
+      "start": "2001-06-08",
+      "end": "2026-06-26"
+    },
+    "totalTrades": 81,
+    "wins": 32,
+    "losses": 49,
+    "winRate": 39.51,
+    "totalPnl": 384328,
+    "avgPnl": 4745,
+    "avgWin": 84048,
+    "avgLoss": -47045,
+    "maxWin": 1155560,
+    "maxLoss": -464625,
+    "profitFactor": 1.17,
+    "rewardRiskRatio": 1.79,
+    "maxDrawdown": -807731
+  },
+  "yearlyPerformance": [
+    {
+      "year": "2001",
+      "pnl": 110719.30306271225,
+      "trades": 5,
+      "wins": 3,
+      "losses": 2,
+      "winRate": 60
+    },
+    {
+      "year": "2002",
+      "pnl": -81949.18966342043,
+      "trades": 4,
+      "wins": 1,
+      "losses": 3,
+      "winRate": 25
+    },
+    {
+      "year": "2003",
+      "pnl": 33552.184130512724,
+      "trades": 7,
+      "wins": 3,
+      "losses": 4,
+      "winRate": 42.86
+    },
+    {
+      "year": "2004",
+      "pnl": 47920,
+      "trades": 2,
+      "wins": 1,
+      "losses": 1,
+      "winRate": 50
+    },
+    {
+      "year": "2005",
+      "pnl": -14079.9374203142,
+      "trades": 2,
+      "wins": 1,
+      "losses": 1,
+      "winRate": 50
+    },
+    {
+      "year": "2006",
+      "pnl": -44415.03766348225,
+      "trades": 3,
+      "wins": 1,
+      "losses": 2,
+      "winRate": 33.33
+    },
+    {
+      "year": "2007",
+      "pnl": -31702.203693468837,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2008",
+      "pnl": -133368.97139588627,
+      "trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "winRate": 0
+    },
+    {
+      "year": "2009",
+      "pnl": 84560,
+      "trades": 6,
+      "wins": 3,
+      "losses": 3,
+      "winRate": 50
+    },
+    {
+      "year": "2010",
+      "pnl": -28010.290708048924,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2011",
+      "pnl": -19794.3385100257,
+      "trades": 3,
+      "wins": 1,
+      "losses": 2,
+      "winRate": 33.33
+    },
+    {
+      "year": "2012",
+      "pnl": 13373.839083718885,
+      "trades": 4,
+      "wins": 2,
+      "losses": 2,
+      "winRate": 50
+    },
+    {
+      "year": "2013",
+      "pnl": -13819.409644208208,
+      "trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "winRate": 66.67
+    },
+    {
+      "year": "2014",
+      "pnl": -26196.693285027068,
+      "trades": 3,
+      "wins": 1,
+      "losses": 2,
+      "winRate": 33.33
+    },
+    {
+      "year": "2015",
+      "pnl": -24485.565099413434,
+      "trades": 2,
+      "wins": 1,
+      "losses": 1,
+      "winRate": 50
+    },
+    {
+      "year": "2016",
+      "pnl": -13040,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2017",
+      "pnl": -114716.92935668856,
+      "trades": 6,
+      "wins": 1,
+      "losses": 5,
+      "winRate": 16.67
+    },
+    {
+      "year": "2018",
+      "pnl": -49674.448166306174,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2019",
+      "pnl": 75948.58050665258,
+      "trades": 6,
+      "wins": 3,
+      "losses": 3,
+      "winRate": 50
+    },
+    {
+      "year": "2020",
+      "pnl": 148142.78003645036,
+      "trades": 4,
+      "wins": 2,
+      "losses": 2,
+      "winRate": 50
+    },
+    {
+      "year": "2021",
+      "pnl": 74760,
+      "trades": 1,
+      "wins": 1,
+      "losses": 0,
+      "winRate": 100
+    },
+    {
+      "year": "2023",
+      "pnl": -206813.57741767788,
+      "trades": 5,
+      "wins": 1,
+      "losses": 4,
+      "winRate": 20
+    },
+    {
+      "year": "2024",
+      "pnl": 323880,
+      "trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "winRate": 66.67
+    },
+    {
+      "year": "2025",
+      "pnl": -153650.338512773,
+      "trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "winRate": 0
+    },
+    {
+      "year": "2026",
+      "pnl": 427188.66580470843,
+      "trades": 4,
+      "wins": 2,
+      "losses": 2,
+      "winRate": 50
+    }
+  ],
+  "trades": [
+    {
+      "id": 1,
+      "entryDate": "2001-06-08",
+      "exitDate": "2001-06-18",
+      "entryPrice": 5241,
+      "exitPrice": 5085.596515313561,
+      "pnlPoints": -155.4,
+      "pnl": -31321,
+      "cumulativePnl": -31321,
+      "exitReason": "停損"
+    },
+    {
+      "id": 2,
+      "entryDate": "2001-10-11",
+      "exitDate": "2001-11-02",
+      "entryPrice": 3846,
+      "exitPrice": 3930,
+      "pnlPoints": 84,
+      "pnl": 16560,
+      "cumulativePnl": -14761,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 3,
+      "entryDate": "2001-11-06",
+      "exitDate": "2001-11-30",
+      "entryPrice": 3991,
+      "exitPrice": 4389,
+      "pnlPoints": 398,
+      "pnl": 79360,
+      "cumulativePnl": 64599,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 4,
+      "entryDate": "2001-12-05",
+      "exitDate": "2001-12-20",
+      "entryPrice": 4911,
+      "exitPrice": 5284,
+      "pnlPoints": 373,
+      "pnl": 74360,
+      "cumulativePnl": 138959,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 5,
+      "entryDate": "2001-12-31",
+      "exitDate": "2002-01-16",
+      "entryPrice": 5599,
+      "exitPrice": 5459,
+      "pnlPoints": -140,
+      "pnl": -28240,
+      "cumulativePnl": 110719,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 6,
+      "entryDate": "2002-01-24",
+      "exitDate": "2002-02-04",
+      "entryPrice": 5801,
+      "exitPrice": 5837,
+      "pnlPoints": 36,
+      "pnl": 6960,
+      "cumulativePnl": 117679,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 7,
+      "entryDate": "2002-02-06",
+      "exitDate": "2002-02-20",
+      "entryPrice": 5970,
+      "exitPrice": 5733.870408626244,
+      "pnlPoints": -236.13,
+      "pnl": -47466,
+      "cumulativePnl": 70213,
+      "exitReason": "停損"
+    },
+    {
+      "id": 8,
+      "entryDate": "2002-03-05",
+      "exitDate": "2002-03-18",
+      "entryPrice": 5965,
+      "exitPrice": 5947,
+      "pnlPoints": -18,
+      "pnl": -3840,
+      "cumulativePnl": 66373,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 9,
+      "entryDate": "2002-04-17",
+      "exitDate": "2002-04-26",
+      "entryPrice": 6451,
+      "exitPrice": 6264.183643056654,
+      "pnlPoints": -186.82,
+      "pnl": -37603,
+      "cumulativePnl": 28770,
+      "exitReason": "停損"
+    },
+    {
+      "id": 10,
+      "entryDate": "2003-03-18",
+      "exitDate": "2003-03-28",
+      "entryPrice": 4539,
+      "exitPrice": 4452,
+      "pnlPoints": -87,
+      "pnl": -17640,
+      "cumulativePnl": 11130,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 11,
+      "entryDate": "2003-07-03",
+      "exitDate": "2003-07-21",
+      "entryPrice": 5123,
+      "exitPrice": 5238,
+      "pnlPoints": 115,
+      "pnl": 22760,
+      "cumulativePnl": 33890,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 12,
+      "entryDate": "2003-07-25",
+      "exitDate": "2003-08-04",
+      "entryPrice": 5385,
+      "exitPrice": 5369,
+      "pnlPoints": -16,
+      "pnl": -3440,
+      "cumulativePnl": 30450,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 13,
+      "entryDate": "2003-08-14",
+      "exitDate": "2003-09-15",
+      "entryPrice": 5467,
+      "exitPrice": 5651,
+      "pnlPoints": 184,
+      "pnl": 36560,
+      "cumulativePnl": 67010,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 14,
+      "entryDate": "2003-09-18",
+      "exitDate": "2003-09-26",
+      "entryPrice": 5760,
+      "exitPrice": 5686,
+      "pnlPoints": -74,
+      "pnl": -15040,
+      "cumulativePnl": 51970,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 15,
+      "entryDate": "2003-10-06",
+      "exitDate": "2003-10-27",
+      "entryPrice": 5830,
+      "exitPrice": 5999,
+      "pnlPoints": 169,
+      "pnl": 33560,
+      "cumulativePnl": 85530,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 16,
+      "entryDate": "2003-10-30",
+      "exitDate": "2003-11-06",
+      "entryPrice": 6135,
+      "exitPrice": 6020.160920652564,
+      "pnlPoints": -114.84,
+      "pnl": -23208,
+      "cumulativePnl": 62322,
+      "exitReason": "停損"
+    },
+    {
+      "id": 17,
+      "entryDate": "2004-02-10",
+      "exitDate": "2004-03-12",
+      "entryPrice": 6476,
+      "exitPrice": 6806,
+      "pnlPoints": 330,
+      "pnl": 65760,
+      "cumulativePnl": 128082,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 18,
+      "entryDate": "2004-09-22",
+      "exitDate": "2004-10-14",
+      "entryPrice": 5937,
+      "exitPrice": 5849,
+      "pnlPoints": -88,
+      "pnl": -17840,
+      "cumulativePnl": 110242,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 19,
+      "entryDate": "2005-08-04",
+      "exitDate": "2005-08-10",
+      "entryPrice": 6446,
+      "exitPrice": 6340.000312898429,
+      "pnlPoints": -106,
+      "pnl": -21440,
+      "cumulativePnl": 88802,
+      "exitReason": "停損"
+    },
+    {
+      "id": 20,
+      "entryDate": "2005-12-19",
+      "exitDate": "2006-01-18",
+      "entryPrice": 6451,
+      "exitPrice": 6489,
+      "pnlPoints": 38,
+      "pnl": 7360,
+      "cumulativePnl": 96162,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 21,
+      "entryDate": "2006-02-07",
+      "exitDate": "2006-02-10",
+      "entryPrice": 6706,
+      "exitPrice": 6557.744636489573,
+      "pnlPoints": -148.26,
+      "pnl": -29891,
+      "cumulativePnl": 66271,
+      "exitReason": "停損"
+    },
+    {
+      "id": 22,
+      "entryDate": "2006-10-27",
+      "exitDate": "2006-10-31",
+      "entryPrice": 7094,
+      "exitPrice": 6974.780175193016,
+      "pnlPoints": -119.22,
+      "pnl": -24084,
+      "cumulativePnl": 42187,
+      "exitReason": "停損"
+    },
+    {
+      "id": 23,
+      "entryDate": "2006-12-21",
+      "exitDate": "2007-01-10",
+      "entryPrice": 7643,
+      "exitPrice": 7692,
+      "pnlPoints": 49,
+      "pnl": 9560,
+      "cumulativePnl": 51747,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 24,
+      "entryDate": "2007-01-18",
+      "exitDate": "2007-01-29",
+      "entryPrice": 7923,
+      "exitPrice": 7765.688981532656,
+      "pnlPoints": -157.31,
+      "pnl": -31702,
+      "cumulativePnl": 20045,
+      "exitReason": "停損"
+    },
+    {
+      "id": 25,
+      "entryDate": "2008-01-15",
+      "exitDate": "2008-01-16",
+      "entryPrice": 8502,
+      "exitPrice": 8153.816793095768,
+      "pnlPoints": -348.18,
+      "pnl": -69877,
+      "cumulativePnl": -49832,
+      "exitReason": "停損"
+    },
+    {
+      "id": 26,
+      "entryDate": "2008-12-10",
+      "exitDate": "2008-12-12",
+      "entryPrice": 4690,
+      "exitPrice": 4373.738349924801,
+      "pnlPoints": -316.26,
+      "pnl": -63492,
+      "cumulativePnl": -113324,
+      "exitReason": "停損"
+    },
+    {
+      "id": 27,
+      "entryDate": "2009-04-24",
+      "exitDate": "2009-04-27",
+      "entryPrice": 5904,
+      "exitPrice": 5705,
+      "pnlPoints": -199,
+      "pnl": -40040,
+      "cumulativePnl": -153364,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 28,
+      "entryDate": "2009-05-04",
+      "exitDate": "2009-05-18",
+      "entryPrice": 6437,
+      "exitPrice": 6561,
+      "pnlPoints": 124,
+      "pnl": 24560,
+      "cumulativePnl": -128804,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 29,
+      "entryDate": "2009-05-20",
+      "exitDate": "2009-06-08",
+      "entryPrice": 6698,
+      "exitPrice": 6644,
+      "pnlPoints": -54,
+      "pnl": -11040,
+      "cumulativePnl": -139844,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 30,
+      "entryDate": "2009-06-26",
+      "exitDate": "2009-07-17",
+      "entryPrice": 6389,
+      "exitPrice": 6759,
+      "pnlPoints": 370,
+      "pnl": 73760,
+      "cumulativePnl": -66084,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 31,
+      "entryDate": "2009-07-20",
+      "exitDate": "2009-08-05",
+      "entryPrice": 6861,
+      "exitPrice": 6768,
+      "pnlPoints": -93,
+      "pnl": -18840,
+      "cumulativePnl": -84924,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 32,
+      "entryDate": "2009-10-02",
+      "exitDate": "2009-10-26",
+      "entryPrice": 7359,
+      "exitPrice": 7641,
+      "pnlPoints": 282,
+      "pnl": 56160,
+      "cumulativePnl": -28764,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 33,
+      "entryDate": "2010-08-19",
+      "exitDate": "2010-08-25",
+      "entryPrice": 7919,
+      "exitPrice": 7780.148546459755,
+      "pnlPoints": -138.85,
+      "pnl": -28010,
+      "cumulativePnl": -56774,
+      "exitReason": "停損"
+    },
+    {
+      "id": 34,
+      "entryDate": "2011-01-14",
+      "exitDate": "2011-01-26",
+      "entryPrice": 8970,
+      "exitPrice": 9050,
+      "pnlPoints": 80,
+      "pnl": 15760,
+      "cumulativePnl": -41014,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 35,
+      "entryDate": "2011-01-27",
+      "exitDate": "2011-02-10",
+      "entryPrice": 9104,
+      "exitPrice": 8965.628307449871,
+      "pnlPoints": -138.37,
+      "pnl": -27914,
+      "cumulativePnl": -68928,
+      "exitReason": "停損"
+    },
+    {
+      "id": 36,
+      "entryDate": "2011-12-23",
+      "exitDate": "2012-01-04",
+      "entryPrice": 7108,
+      "exitPrice": 7071,
+      "pnlPoints": -37,
+      "pnl": -7640,
+      "cumulativePnl": -76568,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 37,
+      "entryDate": "2012-03-15",
+      "exitDate": "2012-03-20",
+      "entryPrice": 8136,
+      "exitPrice": 7969.669195418594,
+      "pnlPoints": -166.33,
+      "pnl": -33506,
+      "cumulativePnl": -110075,
+      "exitReason": "停損"
+    },
+    {
+      "id": 38,
+      "entryDate": "2012-09-12",
+      "exitDate": "2012-09-28",
+      "entryPrice": 7584,
+      "exitPrice": 7718,
+      "pnlPoints": 134,
+      "pnl": 26560,
+      "cumulativePnl": -83515,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 39,
+      "entryDate": "2012-11-26",
+      "exitDate": "2012-12-20",
+      "entryPrice": 7389,
+      "exitPrice": 7558,
+      "pnlPoints": 169,
+      "pnl": 33560,
+      "cumulativePnl": -49955,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 40,
+      "entryDate": "2012-12-28",
+      "exitDate": "2013-01-17",
+      "entryPrice": 7678,
+      "exitPrice": 7613,
+      "pnlPoints": -65,
+      "pnl": -13240,
+      "cumulativePnl": -63195,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 41,
+      "entryDate": "2013-10-21",
+      "exitDate": "2013-10-29",
+      "entryPrice": 8401,
+      "exitPrice": 8407,
+      "pnlPoints": 6,
+      "pnl": 960,
+      "cumulativePnl": -62235,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 42,
+      "entryDate": "2013-10-30",
+      "exitDate": "2013-11-04",
+      "entryPrice": 8441,
+      "exitPrice": 8324.502951778959,
+      "pnlPoints": -116.5,
+      "pnl": -23539,
+      "cumulativePnl": -85774,
+      "exitReason": "停損"
+    },
+    {
+      "id": 43,
+      "entryDate": "2013-12-24",
+      "exitDate": "2014-01-09",
+      "entryPrice": 8482,
+      "exitPrice": 8527,
+      "pnlPoints": 45,
+      "pnl": 8760,
+      "cumulativePnl": -77014,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 44,
+      "entryDate": "2014-01-16",
+      "exitDate": "2014-01-27",
+      "entryPrice": 8619,
+      "exitPrice": 8525.83220643808,
+      "pnlPoints": -93.17,
+      "pnl": -18874,
+      "cumulativePnl": -95888,
+      "exitReason": "停損"
+    },
+    {
+      "id": 45,
+      "entryDate": "2014-02-14",
+      "exitDate": "2014-03-20",
+      "entryPrice": 8507,
+      "exitPrice": 8567,
+      "pnlPoints": 60,
+      "pnl": 11760,
+      "cumulativePnl": -84128,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 46,
+      "entryDate": "2014-07-01",
+      "exitDate": "2014-07-18",
+      "entryPrice": 9381,
+      "exitPrice": 9286.784327136784,
+      "pnlPoints": -94.22,
+      "pnl": -19083,
+      "cumulativePnl": -103211,
+      "exitReason": "停損"
+    },
+    {
+      "id": 47,
+      "entryDate": "2015-02-06",
+      "exitDate": "2015-03-10",
+      "entryPrice": 9471,
+      "exitPrice": 9528,
+      "pnlPoints": 57,
+      "pnl": 11160,
+      "cumulativePnl": -92051,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 48,
+      "entryDate": "2015-11-05",
+      "exitDate": "2015-11-06",
+      "entryPrice": 8873,
+      "exitPrice": 8695.972174502933,
+      "pnlPoints": -177.03,
+      "pnl": -35646,
+      "cumulativePnl": -127696,
+      "exitReason": "停損"
+    },
+    {
+      "id": 49,
+      "entryDate": "2016-05-23",
+      "exitDate": "2016-06-16",
+      "entryPrice": 8344,
+      "exitPrice": 8280,
+      "pnlPoints": -64,
+      "pnl": -13040,
+      "cumulativePnl": -140736,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 50,
+      "entryDate": "2017-03-16",
+      "exitDate": "2017-03-30",
+      "entryPrice": 9841,
+      "exitPrice": 9847,
+      "pnlPoints": 6,
+      "pnl": 960,
+      "cumulativePnl": -139776,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 51,
+      "entryDate": "2017-04-10",
+      "exitDate": "2017-04-12",
+      "entryPrice": 9876,
+      "exitPrice": 9813,
+      "pnlPoints": -63,
+      "pnl": -12840,
+      "cumulativePnl": -152616,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 52,
+      "entryDate": "2017-06-21",
+      "exitDate": "2017-06-22",
+      "entryPrice": 10370,
+      "exitPrice": 10247.433939959827,
+      "pnlPoints": -122.57,
+      "pnl": -24753,
+      "cumulativePnl": -177370,
+      "exitReason": "停損"
+    },
+    {
+      "id": 53,
+      "entryDate": "2017-08-02",
+      "exitDate": "2017-08-03",
+      "entryPrice": 10454,
+      "exitPrice": 10311.230337710265,
+      "pnlPoints": -142.77,
+      "pnl": -28794,
+      "cumulativePnl": -206163,
+      "exitReason": "停損"
+    },
+    {
+      "id": 54,
+      "entryDate": "2017-10-31",
+      "exitDate": "2017-11-10",
+      "entryPrice": 10783,
+      "exitPrice": 10661.770623070037,
+      "pnlPoints": -121.23,
+      "pnl": -24486,
+      "cumulativePnl": -230649,
+      "exitReason": "停損"
+    },
+    {
+      "id": 55,
+      "entryDate": "2017-11-22",
+      "exitDate": "2017-11-28",
+      "entryPrice": 10827,
+      "exitPrice": 10704.180452476428,
+      "pnlPoints": -122.82,
+      "pnl": -24804,
+      "cumulativePnl": -255453,
+      "exitReason": "停損"
+    },
+    {
+      "id": 56,
+      "entryDate": "2018-11-29",
+      "exitDate": "2018-12-06",
+      "entryPrice": 9878,
+      "exitPrice": 9630.82775916847,
+      "pnlPoints": -247.17,
+      "pnl": -49674,
+      "cumulativePnl": -305128,
+      "exitReason": "停損"
+    },
+    {
+      "id": 57,
+      "entryDate": "2019-03-15",
+      "exitDate": "2019-03-29",
+      "entryPrice": 10414,
+      "exitPrice": 10597,
+      "pnlPoints": 183,
+      "pnl": 36360,
+      "cumulativePnl": -268768,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 58,
+      "entryDate": "2019-04-01",
+      "exitDate": "2019-04-30",
+      "entryPrice": 10641,
+      "exitPrice": 10951,
+      "pnlPoints": 310,
+      "pnl": 61760,
+      "cumulativePnl": -207008,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 59,
+      "entryDate": "2019-07-02",
+      "exitDate": "2019-07-03",
+      "entryPrice": 10750,
+      "exitPrice": 10567.569709621977,
+      "pnlPoints": -182.43,
+      "pnl": -36726,
+      "cumulativePnl": -243734,
+      "exitReason": "停損"
+    },
+    {
+      "id": 60,
+      "entryDate": "2019-11-20",
+      "exitDate": "2019-11-21",
+      "entryPrice": 11608,
+      "exitPrice": 11455.373192911286,
+      "pnlPoints": -152.63,
+      "pnl": -30765,
+      "cumulativePnl": -274499,
+      "exitReason": "停損"
+    },
+    {
+      "id": 61,
+      "entryDate": "2019-12-09",
+      "exitDate": "2019-12-26",
+      "entryPrice": 11672,
+      "exitPrice": 12006,
+      "pnlPoints": 334,
+      "pnl": 66560,
+      "cumulativePnl": -207939,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 62,
+      "entryDate": "2019-12-27",
+      "exitDate": "2019-12-31",
+      "entryPrice": 12098,
+      "exitPrice": 11993,
+      "pnlPoints": -105,
+      "pnl": -21240,
+      "cumulativePnl": -229179,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 63,
+      "entryDate": "2020-01-02",
+      "exitDate": "2020-01-06",
+      "entryPrice": 12102,
+      "exitPrice": 11950.05989572345,
+      "pnlPoints": -151.94,
+      "pnl": -30628,
+      "cumulativePnl": -259807,
+      "exitReason": "停損"
+    },
+    {
+      "id": 64,
+      "entryDate": "2020-01-14",
+      "exitDate": "2020-01-16",
+      "entryPrice": 12182,
+      "exitPrice": 11994.454004458801,
+      "pnlPoints": -187.55,
+      "pnl": -37749,
+      "cumulativePnl": -297556,
+      "exitReason": "停損"
+    },
+    {
+      "id": 65,
+      "entryDate": "2020-07-23",
+      "exitDate": "2020-08-20",
+      "entryPrice": 12288,
+      "exitPrice": 12297,
+      "pnlPoints": 9,
+      "pnl": 1560,
+      "cumulativePnl": -295996,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 66,
+      "entryDate": "2020-12-25",
+      "exitDate": "2021-01-28",
+      "entryPrice": 14305,
+      "exitPrice": 15381,
+      "pnlPoints": 1076,
+      "pnl": 214960,
+      "cumulativePnl": -81036,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 67,
+      "entryDate": "2021-02-05",
+      "exitDate": "2021-03-03",
+      "entryPrice": 15803,
+      "exitPrice": 16178,
+      "pnlPoints": 375,
+      "pnl": 74760,
+      "cumulativePnl": -6276,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 68,
+      "entryDate": "2023-03-01",
+      "exitDate": "2023-03-14",
+      "entryPrice": 15547,
+      "exitPrice": 15353,
+      "pnlPoints": -194,
+      "pnl": -39040,
+      "cumulativePnl": -45316,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 69,
+      "entryDate": "2023-03-23",
+      "exitDate": "2023-04-21",
+      "entryPrice": 15837,
+      "exitPrice": 15613,
+      "pnlPoints": -224,
+      "pnl": -45040,
+      "cumulativePnl": -90356,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 70,
+      "entryDate": "2023-07-14",
+      "exitDate": "2023-07-21",
+      "entryPrice": 17292,
+      "exitPrice": 16966.7105164109,
+      "pnlPoints": -325.29,
+      "pnl": -65298,
+      "cumulativePnl": -155654,
+      "exitReason": "停損"
+    },
+    {
+      "id": 71,
+      "entryDate": "2023-07-31",
+      "exitDate": "2023-08-04",
+      "entryPrice": 17104,
+      "exitPrice": 16765.22159650071,
+      "pnlPoints": -338.78,
+      "pnl": -67996,
+      "cumulativePnl": -223650,
+      "exitReason": "停損"
+    },
+    {
+      "id": 72,
+      "entryDate": "2023-12-12",
+      "exitDate": "2024-01-05",
+      "entryPrice": 17463,
+      "exitPrice": 17517,
+      "pnlPoints": 54,
+      "pnl": 10560,
+      "cumulativePnl": -213090,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 73,
+      "entryDate": "2024-04-29",
+      "exitDate": "2024-06-04",
+      "entryPrice": 20551,
+      "exitPrice": 21326,
+      "pnlPoints": 775,
+      "pnl": 154760,
+      "cumulativePnl": -58330,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 74,
+      "entryDate": "2024-06-07",
+      "exitDate": "2024-06-28",
+      "entryPrice": 21895,
+      "exitPrice": 22979,
+      "pnlPoints": 1084,
+      "pnl": 216560,
+      "cumulativePnl": 158230,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 75,
+      "entryDate": "2024-07-04",
+      "exitDate": "2024-07-18",
+      "entryPrice": 23622,
+      "exitPrice": 23386,
+      "pnlPoints": -236,
+      "pnl": -47440,
+      "cumulativePnl": 110790,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 76,
+      "entryDate": "2025-08-28",
+      "exitDate": "2025-09-03",
+      "entryPrice": 24225,
+      "exitPrice": 23715.148307436135,
+      "pnlPoints": -509.85,
+      "pnl": -102210,
+      "cumulativePnl": 8580,
+      "exitReason": "停損"
+    },
+    {
+      "id": 77,
+      "entryDate": "2025-11-28",
+      "exitDate": "2025-12-17",
+      "entryPrice": 27738,
+      "exitPrice": 27482,
+      "pnlPoints": -256,
+      "pnl": -51440,
+      "cumulativePnl": -42860,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 78,
+      "entryDate": "2026-02-10",
+      "exitDate": "2026-03-06",
+      "entryPrice": 33304,
+      "exitPrice": 33702,
+      "pnlPoints": 398,
+      "pnl": 79360,
+      "cumulativePnl": 36500,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 79,
+      "entryDate": "2026-04-08",
+      "exitDate": "2026-05-18",
+      "entryPrice": 35017,
+      "exitPrice": 40796,
+      "pnlPoints": 5779,
+      "pnl": 1155560,
+      "cumulativePnl": 1192060,
+      "exitReason": "信號平倉"
+    },
+    {
+      "id": 80,
+      "entryDate": "2026-05-25",
+      "exitDate": "2026-06-08",
+      "entryPrice": 43871,
+      "exitPrice": 42156.66953949258,
+      "pnlPoints": -1714.33,
+      "pnl": -343106,
+      "cumulativePnl": 848954,
+      "exitReason": "停損"
+    },
+    {
+      "id": 81,
+      "entryDate": "2026-06-18",
+      "exitDate": "2026-06-26",
+      "entryPrice": 46753,
+      "exitPrice": 44431.073789530965,
+      "pnlPoints": -2321.93,
+      "pnl": -464625,
+      "cumulativePnl": 384328,
+      "exitReason": "停損"
+    }
+  ]
+}

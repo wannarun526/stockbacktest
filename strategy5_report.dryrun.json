@@ -1,0 +1,175 @@
+{
+  "strategy": "codex CLI（gpt-6-luna）逐日決策做多（1口）— stateless 模式、訊號 stance、訊號日收盤進出場",
+  "config": {
+    "startDate": "2001-04-09",
+    "endDate": null,
+    "limit": 400,
+    "codexBin": "codex",
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "timeoutMs": 180000,
+    "mode": "stateless",
+    "concurrency": 2,
+    "maxRetries": 5,
+    "dryRun": true,
+    "signal": "stance",
+    "threshold": 0.5,
+    "horizon": 5,
+    "exec": "close",
+    "tokenBudget": 120000,
+    "charsPerToken": 3,
+    "minBars": 60,
+    "maxBars": 0,
+    "pointValue": 200,
+    "costPerTrade": 240,
+    "slippage": 0
+  },
+  "codex": {
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "auth": "ChatGPT 訂閱（codex CLI）",
+    "apiCalls": 0,
+    "cacheHits": 0,
+    "totalTokens": 0,
+    "elapsedSeconds": 0,
+    "secondsPerCall": null,
+    "contextTruncated": false,
+    "firstTruncatedDate": null,
+    "minDailyBarsFed": 400,
+    "longDays": 182,
+    "flatDays": 218,
+    "longDayRatio": 45.5,
+    "avgUpProb": 0.4892,
+    "note": "模型自報的 up_prob 無 logprobs 校準；訓練資料含同期台股歷史，有 look-ahead bias。"
+  },
+  "summary": {
+    "backtestPeriod": {
+      "start": "2001-04-09",
+      "end": "2002-11-18",
+      "tradingDays": 400
+    },
+    "totalTrades": 8,
+    "wins": 1,
+    "losses": 7,
+    "winRate": 12.5,
+    "totalPnl": 57880,
+    "avgPnl": 7235,
+    "avgWin": 323360,
+    "avgLoss": -37926,
+    "maxWin": 323360,
+    "maxLoss": -69840,
+    "profitFactor": 1.22,
+    "rewardRiskRatio": 8.53,
+    "maxDrawdown": -217600,
+    "exposureRatio": 45.5,
+    "buyHoldPnl": -125800
+  },
+  "yearlyPerformance": [
+    {
+      "year": "2001",
+      "pnl": 275480,
+      "trades": 3,
+      "wins": 1,
+      "losses": 2,
+      "winRate": 33.33
+    },
+    {
+      "year": "2002",
+      "pnl": -217600,
+      "trades": 5,
+      "wins": 0,
+      "losses": 5,
+      "winRate": 0
+    }
+  ],
+  "trades": [
+    {
+      "id": 1,
+      "entryDate": "2001-06-08",
+      "exitDate": "2001-06-19",
+      "entryPrice": 5240,
+      "exitPrice": 5082,
+      "pnlPoints": -158,
+      "pnl": -31840,
+      "cumulativePnl": -31840,
+      "exitReason": "訊號平倉"
+    },
+    {
+      "id": 2,
+      "entryDate": "2001-08-06",
+      "exitDate": "2001-08-27",
+      "entryPrice": 4420,
+      "exitPrice": 4341,
+      "pnlPoints": -79,
+      "pnl": -16040,
+      "cumulativePnl": -47880,
+      "exitReason": "訊號平倉"
+    },
+    {
+      "id": 3,
+      "entryDate": "2001-10-12",
+      "exitDate": "2002-01-18",
+      "entryPrice": 3825,
+      "exitPrice": 5443,
+      "pnlPoints": 1618,
+      "pnl": 323360,
+      "cumulativePnl": 275480,
+      "exitReason": "訊號平倉"
+    },
+    {
+      "id": 4,
+      "entryDate": "2002-01-22",
+      "exitDate": "2002-02-22",
+      "entryPrice": 5804,
+      "exitPrice": 5620,
+      "pnlPoints": -184,
+      "pnl": -37040,
+      "cumulativePnl": 238440,
+      "exitReason": "訊號平倉"
+    },
+    {
+      "id": 5,
+      "entryDate": "2002-03-06",
+      "exitDate": "2002-04-11",
+      "entryPrice": 6120,
+      "exitPrice": 6032,
+      "pnlPoints": -88,
+      "pnl": -17840,
+      "cumulativePnl": 220600,
+      "exitReason": "訊號平倉"
+    },
+    {
+      "id": 6,
+      "entryDate": "2002-04-16",
+      "exitDate": "2002-05-02",
+      "entryPrice": 6231,
+      "exitPrice": 5883,
+      "pnlPoints": -348,
+      "pnl": -69840,
+      "cumulativePnl": 150760,
+      "exitReason": "訊號平倉"
+    },
+    {
+      "id": 7,
+      "entryDate": "2002-07-12",
+      "exitDate": "2002-07-23",
+      "entryPrice": 5415,
+      "exitPrice": 5190,
+      "pnlPoints": -225,
+      "pnl": -45240,
+      "cumulativePnl": 105520,
+      "exitReason": "訊號平倉"
+    },
+    {
+      "id": 8,
+      "entryDate": "2002-08-19",
+      "exitDate": "2002-09-02",
+      "entryPrice": 4854,
+      "exitPrice": 4617,
+      "pnlPoints": -237,
+      "pnl": -47640,
+      "cumulativePnl": 57880,
+      "exitReason": "訊號平倉"
+    }
+  ]
+}

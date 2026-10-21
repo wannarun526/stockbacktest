@@ -1,0 +1,23 @@
+# 憑證與環境變數 —— 絕對不要進版控
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.json
+credentials.json
+
+# Shioaji / 券商 SDK 產生的執行期檔案（含登入 token 紀錄）
+shioaji.log
+*.log
+
+# 回測快取（可重新產生，且可能含 API 回應內容）
+*_cache*.jsonl
+*.bak
+
+# 系統與編輯器
+.DS_Store
+node_modules/
+__pycache__/
+*.pyc

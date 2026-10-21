@@ -1,0 +1,154 @@
+{
+  "id": "6-13",
+  "strategy": "跌破進場日最低出場 — 收盤 > BB(20,2) 上軌尾盤做多（1口）｜出場：收盤 < 進場日最低價 → 收盤平倉",
+  "exitRule": "收盤 < 進場日最低價 → 收盤平倉",
+  "config": {
+    "startDate": null,
+    "endDate": null,
+    "bbPeriod": 20,
+    "bbMult": 2,
+    "entryMode": "level",
+    "pointValue": 200,
+    "costPerTrade": 240,
+    "slippage": 0
+  },
+  "summary": {
+    "backtestPeriod": {
+      "start": "2001-04-09",
+      "end": "2026-08-21",
+      "tradingDays": 6249
+    },
+    "totalTrades": 4,
+    "wins": 0,
+    "losses": 4,
+    "winRate": 0,
+    "totalPnl": -167360,
+    "avgPnl": -41840,
+    "avgWin": 0,
+    "avgLoss": -41840,
+    "maxWin": 0,
+    "maxLoss": -68640,
+    "profitFactor": 0,
+    "rewardRiskRatio": 0,
+    "maxDrawdown": -167360,
+    "pnlToMaxDD": -1,
+    "pctSum": -18.4,
+    "avgPctPerTrade": -4.6,
+    "pctCompound": -17.2,
+    "avgHoldDays": 414.5,
+    "exposureRatio": 26.53,
+    "buyHoldPnl": 7943800
+  },
+  "openPosition": {
+    "entryDate": "2009-03-11",
+    "entryPrice": 4758,
+    "lastDate": "2026-08-21",
+    "lastClose": 45138,
+    "holdDays": 4285,
+    "unrealizedPoints": 40380,
+    "unrealizedPnl": 8075760
+  },
+  "exitReasonStats": [
+    {
+      "reason": "跌破進場日低點",
+      "trades": 4,
+      "wins": 0,
+      "losses": 4,
+      "winRate": 0,
+      "pnl": -167360,
+      "avgPnl": -41840
+    }
+  ],
+  "yearlyPerformance": [
+    {
+      "year": "2001",
+      "pnl": -23640,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2002",
+      "pnl": -68640,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2003",
+      "pnl": -21640,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    },
+    {
+      "year": "2008",
+      "pnl": -53440,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0
+    }
+  ],
+  "trades": [
+    {
+      "id": 1,
+      "entryDate": "2001-11-14",
+      "exitDate": "2002-10-02",
+      "entryPrice": 4230,
+      "exitPrice": 4113,
+      "holdDays": 218,
+      "mfePoints": 2220,
+      "maePoints": -185,
+      "pnlPoints": -117,
+      "pnl": -23640,
+      "cumulativePnl": -23640,
+      "exitReason": "跌破進場日低點"
+    },
+    {
+      "id": 2,
+      "entryDate": "2002-10-23",
+      "exitDate": "2003-03-11",
+      "entryPrice": 4592,
+      "exitPrice": 4250,
+      "holdDays": 91,
+      "mfePoints": 518,
+      "maePoints": -361,
+      "pnlPoints": -342,
+      "pnl": -68640,
+      "cumulativePnl": -92280,
+      "exitReason": "跌破進場日低點"
+    },
+    {
+      "id": 3,
+      "entryDate": "2003-05-26",
+      "exitDate": "2008-10-24",
+      "entryPrice": 4444,
+      "exitPrice": 4337,
+      "holdDays": 1347,
+      "mfePoints": 5420,
+      "maePoints": -107,
+      "pnlPoints": -107,
+      "pnl": -21640,
+      "cumulativePnl": -113920,
+      "exitReason": "跌破進場日低點"
+    },
+    {
+      "id": 4,
+      "entryDate": "2008-12-10",
+      "exitDate": "2008-12-12",
+      "entryPrice": 4689,
+      "exitPrice": 4423,
+      "holdDays": 2,
+      "mfePoints": 15,
+      "maePoints": -346,
+      "pnlPoints": -266,
+      "pnl": -53440,
+      "cumulativePnl": -167360,
+      "exitReason": "跌破進場日低點"
+    }
+  ]
+}
